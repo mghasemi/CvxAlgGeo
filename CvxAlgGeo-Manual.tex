@@ -1,0 +1,324 @@
+\documentclass{amsart}
+
+\linespread{1.3}
+
+\usepackage{amsmath, amssymb, mathrsfs, amsthm, MnSymbol, xifthen, verbatim, color, mathrsfs, graphicx}%, etoolbox}
+\usepackage[arrow, matrix]{xy}
+
+\definecolor{DarkBlue}{rgb}{0,0.2,0.6}
+\definecolor{PinkPurple}{rgb}{0.8,0.3,0.3}
+
+\usepackage[pdftex,
+            pdfauthor={Mehdi Ghasemi},
+            pdftitle={CvxAlgGeo Manual},
+            pdfsubject={Convex Algebraic Geometry},
+            pdfkeywords={Sums of Squares, Optimization, Global, Constrained},
+            pdfproducer={Latex with hyperref},
+            pdfcreator={PDFLaTeX},
+            linkcolor=PinkPurple,
+            citecolor=blue,
+            urlcolor=DarkBlue,
+            colorlinks=true]{hyperref}
+
+%%% Italic Environments %%%
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lemma}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{crl}[thm]{Corollary}
+
+%%% Plain Environments %%%
+\theoremstyle{definition}
+\newtheorem{dfn}[thm]{Definition}
+\newtheorem{exm}[thm]{Example}
+\newtheorem{qus}[thm]{Question}
+\newtheorem{rem}[thm]{Remark}
+
+%%% Sets %%%
+\newcommand{\reals}{\mathbb{R}}
+\newcommand{\naturals}{\mathbb{N}}
+\newcommand{\integers}{\mathbb{Z}}
+\newcommand{\cplx}{\mathbb{C}}
+\newcommand{\rationals}{\mathbb{Q}}
+\newcommand{\rx}{\sgr{\mathbb{R}}{\ux}}
+\newcommand{\sos}{\sum\mathbb{R}[\underline{X}]^2}
+\newcommand{\rfps}{\fps{\mathbb{R}}{\underline{X}}}
+\newcommand{\sage}{\href{http://www.sagemath.org}{\textsc{Sage}}}
+\newcommand{\cvxalggeo}{\href{https://docs.google.com/open?id=0B16xZ-lflLrZZGMwN2I1MGItNzk5Mi00OGIxLTljZjgtYTgxMmUyMTZiZGU4}{\textsc{CvxAlgGeo}}}
+
+%%% Special Symbols %%%
+\newcommand{\tvs}{\mathcal{TVS}}
+\newcommand{\spr}{\textrm{Sper}}
+\newcommand{\sgn}{\textrm{Sgn}}
+\newcommand{\ux}{\underline{X}}
+\newcommand{\ur}{\underline{r}}
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+\newcommand{\supp}{\text{supp}}
+\newcommand{\spn}{\text{Span}}
+\newcommand{\etal}{\textit{et al. }}
+
+%%% One Parameter %%%
+\newcommand{\ringsos}[1]{\sum #1^2}
+\newcommand{\K}[1]{\mathcal{K}_{#1}}
+\newcommand{\pos}[1]{\mbox{Psd}(#1)}
+\newcommand{\etop}[1]{\mathcal{E}_{#1}}
+\newcommand{\V}[1]{\mathcal{X}_{#1}}
+\newcommand{\Z}[1]{\mathcal{Z}(#1)}
+\newcommand{\T}[1]{\mathcal{T}_{#1}}
+%\newcommand{\M}[1]{\sigma(#1)}
+\newcommand{\M}[1]{\mathfrak{sp}(#1)}
+\newcommand{\bdd}[1]{\ell^{\infty}(#1)}
+%\newcommand{\M}[1]{\mathfrak{M}(#1)}
+\newcommand{\rgp}[1]{#1_{\textrm{gp}}}
+\newcommand{\rsos}[1]{#1_{\textrm{sos}}}
+
+%%% Two Parameters %%%
+\newcommand{\sgr}[2]{#1[#2]}
+\newcommand{\ringsop}[2]{\sum #1^{#2}}
+\newcommand{\sgrsos}[2]{\sum #1[#2]^2}
+\newcommand{\fps}[2]{#1\lsem #2\rsem}
+\newcommand{\qm}[2]{\mbox{QM}(#1; #2)}
+\newcommand{\Hom}[2]{\mbox{Hom}(#1,#2)}
+\newcommand{\norm}[2]{\|\ifthenelse{\isempty{#2}}{\cdot}{#2}\|_{#1}}
+\newcommand{\cl}[2]{\overline{#2}^{\ifthenelse{\isempty{#1}}{}{#1}}}
+\newcommand{\Cnt}[2]{\mathrm{C}_{\ifthenelse{\isempty{#1}}{}{#1}}(#2)}
+\newcommand{\Psd}[2]{\mbox{Psd}_{\ifthenelse{\isempty{#1}}{}{#1}}(#2)}
+\newcommand{\crgp}[2]{#1_{\textrm{gp},#2}}
+
+%%% Three Parameters %%%
+\newcommand{\map}[3]{#1:#2\longrightarrow #3}
+
+\begin{document}
+
+\title{CvxAlgGeo user manual}
+%
+\author[M. Ghasemi]{Mehdi Ghasemi}
+%
+\address{Department of Mathematics and Statistics,\newline\indent
+University of Saskatchewan,\newline\indent
+Saskatoon, SK. S7N 5E6, Canada}
+%
+\email{mehdi.ghasemi@usask.ca}
+%
+%
+\keywords{sums of squares, semidefinite programming, geometric programming, optimization}
+
+%\subjclass[2010]{Primary 13J30, 14P99, 44A60; Secondary 43A35, 46B99, 44A60.}
+
+\date{\today}
+
+%\begin{abstract}
+%\end{abstract}
+
+\maketitle
+
+%\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{What is \cvxalggeo?}
+
+\cvxalggeo~ is a package written for \sage~ and published under GNU(GPL) to implement a fast method to compute a lower bound for multivariate 
+polynomials over a basic closed semialgebraic set. It is mainly based on methods introduced in \cite{lbgp}, \cite{lbgpLasserre} and \cite{genlbgp}. 
+Moreover, to provide computational tools for usual calculation based on semidefinite programming \cvxalggeo~ implements some functionalities 
+available on \textsc{SosTools} and \textsc{GlOptiPoly} for \textsc{Matlab} \cite{gloptipoly, sostools}.
+
+At this stage, \cvxalggeo~ contains implementations of two different methods for polynomial optimization:
+
+\subsection{By Geometric Programming:}
+Let $f=\sum_{\alpha}f_{\alpha}\ux^{\alpha}$ be a polynomials on $X_1,\dots, X_n$ of degree $d$, where $\ux^{\alpha}$ is short for 
+$X_1^{\alpha_1}\cdots X_n^{\alpha_n}$, and $\alpha=(\alpha_1,\dots,\alpha_n)\in\naturals^n$. 
+The degree of a monomial $\ux^{\alpha}$ is denoted by $|\alpha|$ that is defined by $|\alpha|=\alpha_1+\cdots+\alpha_n$. 
+Denote $f_{\alpha}$ where $\alpha=2d(\delta_{1i},\dots,\delta_{ni})$ by $f_{2d,i}$ and $f_{(0,\dots,0)}=f(\underline{0})$ by $f_0$ for simplicity.
+Degree of a polynomial $f$ ($\deg f$) is the maximum degree of its monomials.
+We also denote the set of those exponents $\alpha$ for which the monomial $f_{\alpha}\ux^{\alpha}$ is not a square by $\Delta_f$, i.e.,
+\[
+	\Delta_f:=\{\alpha\in\naturals^n ~:~ f_{\alpha}<0\textrm{ or }\alpha_i\textrm{ is odd for some }1\leq i\leq n\}.
+\]
+Let $\textbf{g}=(g_1,\dots,g_m)$ be a tuple of polynomials and $K_{\textbf{g}}=\{x\in\reals^n : g_j(x)\ge 0, j=1,\dots,m\}$. Denote the infimum 
+of $f$ over $K_{\textbf{g}}$ by $f_{*,\textbf{g}}$, $\Delta=\Delta_f\cup\Delta_{-g_1}\cup\dots\cup\Delta_{-g_m}$ and $A=(a_{kl})$ be a 
+$(m+1)\times(m+1)$ matrix such that $a_{0l}=1$ if $l=1$ and $0$ otherwise. Define $h_k=\sum_{j=0}^m a_{jk}g_j$, $k=0,\dots,m$ where $g_0=-f$ and
+$H(\mu)=-\sum_{j=0}^m \mu h_j$. We can Decompose $H$ as $H^+-H^-$ where all the coefficients of $H^+$ and $H^-$ are nonnegative.
+If $\rho$ is an optimum value for the following \textit{geometric program}, then $f_{gp,\textbf{g}}=-h_0(0)-\rho$ is a lower bound for the global 
+minimum of $f$ on $K_{\textbf{g}}$.
+\begin{equation}\label{GP}
+\left\{\begin{array}{rl}
+&Minimize \ \sum\limits_{j=1}^m \mu_jh_j(0)^++ \sum\limits_{\alpha\in\Delta^{<d}}(d-\vert\alpha\vert)\left[
+\left(\frac{w_\alpha}{d}\right)^{d}\,\left(\frac{\alpha}{\bold{z}_\alpha}\right)^\alpha
+\right]^{1/(d-\vert\alpha\vert)}\\
+&\\
+&\mbox{s.t.}\ \sum\limits_{\alpha\in\Delta}z_{\alpha,i} \ \le \ H(\mu)_{d,i}\,,\quad i=1,\ldots,n\\
+&\\
+&\left(\frac{\bold{z}_\alpha}{\alpha}\right)^\alpha \,\ge \,\left(\frac{w_\alpha}{d}\right)^{d},\quad\alpha\in\Delta^{=d} \\
+&\\
+&w_{\alpha}\ge \max\{ H(\mu)_{\alpha}^+, H(\mu)_{\alpha}^-\}, \quad\alpha \in \Delta \\
+&\\
+&\sum\limits_{k=0}^m a_{jk}\mu_k \ge 0, \quad j=1,\dots,m
+\end{array}\right.
+\end{equation}
+Here $h_j^+(0)=\max\{h_j(0),0\}$ \cite[Theorem 4.1]{genlbgp}.
+
+In \cite{lbgpLasserre}, \cite{lbgp} and \cite{genlbgp} the advantages and disadvantages of solving \eqref{GP} instead of solving the corresponding 
+semidefinite program is discussed.
+
+\subsection{By Semidefinite Programming:}
+It is  well known that a feasible value for the semidefinite program \eqref{CSOS} is a lower bound for the polynomial $f$ on a semialgebraic set $K=K_S$, where 
+$S=\{g_1,\dots,g_m\}$ and $K_S=\{x\in\reals^n:g_i(x)\ge0, i=1,\dots,m\}$.
+\begin{equation}\label{CSOS}
+\textrm{Prg}_k:\left\lbrace\begin{array}{lll}
+	\min\limits_y & \sum_{\alpha}f_{\alpha}y_{\alpha} & \\
+	\textrm{subject to} & M_k(y)\succeq0 & \\
+	 & M_{k-\deg g_i}(g_iy)\succeq0 & i=1,\dots,m
+\end{array}\right.
+\end{equation}
+for $k\ge\max\{\deg f,\deg g_1,\dots,\deg g_m\}$. All the notations are as described in \cite{LasserreSDP}. Current implementation is based on the description 
+given on \cite[Chapter 4 and 5]{LasserreMPP} and \cite{Laurent}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\cvxalggeo}
+
+\cvxalggeo~ implements few tools for computations over real polynomial rings in Python for \sage~ using 
+\href{http://abel.ee.ucla.edu/cvxopt/}{\textsc{CvxOpt}}.
+The current version consists of two main classes.
+\begin{enumerate}
+	\item{\texttt{GlOptGeoPrg}}
+	\item{\texttt{SosTools}}
+\end{enumerate}
+In this section we describe how to use these programs.
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{GlOptGeoPrg(Prog, Rng [, H=A, Settings])}~
+
+\noindent\textbf{Initialization:}
+This class implements \eqref{GP}, requires two mandatory arguments, \texttt{Prog}, \texttt{Rng} and two optional arguments \texttt{H} and 
+\texttt{Settings}.
+\begin{itemize}
+	\item{\texttt{Prog=[f, Cons]} is a list consists of two parts:
+	\begin{itemize}
+		\item{`\texttt{f}' is the polynomial which is subject to minimizations.}
+		\item{`\texttt{Cons=[g1, ..., gm]}' is a list of polynomials corresponding to the constraints $g_j\ge0$, for $j=1,\cdots,m$.}
+	\end{itemize}
+	They must be elements of the polynomial ring \texttt{Rng}, `\texttt{PolynomialRing(F,'x',n)}' where \texttt{n} is 
+	the number of variables and `\texttt{F}' is the base field.}
+	\item{\texttt{H} is the matrix $A=(a_{kl})$.}
+	\item{\texttt{Settings} is a dictionary with the following keys:
+	\begin{itemize}
+		\item{`\texttt{Iterations}' is the number of iterations the \texttt{solver} tries to find an optimum solution. Its default value is 150.}
+		\item{`\texttt{Details}' is by default set to \texttt{False}. Set \texttt{True} to see the detail output of the \textsc{CvxOpt} solver.}
+		\item{`\texttt{tryKKT}' is by default $20$ that forces the solver to continue for the given number of steps, even if a singular KKT matrix 
+		occurred.}
+		\item{`\texttt{AutoMatrix}' accepts a boolean `\texttt{True}' or `\texttt{False}'. The value \texttt{True} leaves the choice of $A$ to 
+		the program automatically.}
+	\end{itemize}
+	}
+\end{itemize}
+
+\noindent\textbf{Running:}
+The method \texttt{GlOptGeoPrg.minimize()} solves \eqref{GP} for \texttt{f} and \texttt{g1,...,gm}. 
+The attribute \texttt{GlOptGeoPrg.fgp} also contains the output of \texttt{minimize}.
+
+\noindent\textbf{Output:}
+The attribute \texttt{GlOptGeoPrg.Info} is a dictionary which gives detailed information on the results of the method \texttt{minimize}.
+\begin{itemize}
+	\item{`\texttt{gp}' is the lower bound obtained from \eqref{GP}.}
+	\item{`\texttt{Wall}' contains the wall time consumed by the solver.}
+	\item{`\texttt{CPU}' contains the CPU time consumed by the solver.}
+	\item{`\texttt{status}' and `\texttt{Message}' give some informations about the running process.}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{SosTools(Prg, Rng [, Settings])}~
+
+This class is on its early stage and aims to provides the same functionality as \textsc{SosTools} does for \textsc{Matlab}.
+
+\noindent\textbf{Initialization:}
+This class implements the semidefinite program \eqref{CSOS}.
+\begin{itemize}
+	\item{\texttt{Prg=[f,Cons]} is a list consists of two parts:
+	\begin{itemize}
+		\item{`\texttt{f}' is the polynomial which is subject to minimizations.}
+		\item{`\texttt{Cons=[g1, ..., gm]}' is a list of polynomials corresponding to the constraints $g_j\ge0$, for $j=1,\cdots,m$.}
+	\end{itemize}
+	They must be elements of the polynomial ring \texttt{Rng}, `\texttt{PolynomialRing(F,'x',n)}' where \texttt{n} is 
+	the number of variables and `\texttt{F}' is the base field.}
+	\item{\texttt{Settings} is exactly similar to \texttt{GlOptGeoPrg} with an extra index `\texttt{Order}' which corresponds to the index $k$ for $\textrm{Prg}_k$
+	in \eqref{CSOS}.
+	The default value for \texttt{Order} is set to be 0 which results in the minimum size for moment matrices.}
+\end{itemize}
+
+\noindent\textbf{Running:}
+\begin{itemize}
+	\item{The method \texttt{SosTools.init\_sdp()} initializes the semidefinite program corresponding to \eqref{CSOS}.}
+	\item{The method \texttt{SosTools.minimize()} returns the an optimum value $\rsos{f}$, for \eqref{CSOS} if exists.}
+	\item{The method \texttt{SosTools.decompose} returns a vector of polynomials $[p_1,\dots,p_s]$ such that $f=\sum_{i=1}^s p_i^2$.}
+\end{itemize}
+
+\noindent\textbf{Output:}
+The attribute \texttt{SosTools.Info} returns the similar information as for \texttt{GlOptGeoPrg.Info}. But instead of `\texttt{gp}' it has the key `\texttt{min}'
+for $\rsos{f}$. The Info key `\texttt{is sos}' is by default \texttt{False}, but after executing `\texttt{decompose}' it may become \texttt{True}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Example}
+\begin{verbatim}
+
+## Initial settings ##
+n = 3			# Number of variables
+d = 4			# Maximum degree of polynomials
+m = 2			# Number of constraints
+num_monos = 4	# Max number of monomials
+R = PolynomialRing(RR,'x',n);
+X = R.gens();
+
+##########################################
+
+Prg=[]
+Cns=[]
+f=R.random_element(d,randint(1,num_monos))+sum(p^d for p in X)
+Prg.append(f)
+for i in range(m):
+    g=R.random_element(d,num_monos)
+    Cns.append(g);
+Prg.append(Cns)
+
+conf={'Details':False,'tryKKT':20, 'AutoMatrix':False, 'Order':1}
+M=identity_matrix(QQ,m+1)
+
+print Prg
+
+A=GlOptGeoPrg(Prg, R, H=M, Settings=conf)
+A.minimize()
+show(A.H)
+print A.Info
+B=SosTools(Prg, R, Settings=conf)
+B.init_sdp()
+B.minimize()
+print B.Info
+\end{verbatim}
+The code generates random polynomials and computes $\rgp{f}$ and $f_{gp,\textbf{g}}$: Here is the output:
+\begin{verbatim}
+[x0^4 + x1^4 + x2^4 - x2^3 + 122*x0, 
+[-x0^2*x1 - 4*x2^3 - x1, -x0^2*x1*x2 + 10*x1^3*x2 - 2*x1^2*x2]]
+
+{'status': 'Optimal', 'Message': 'Optimal solution found by solver.', 
+'Wall': 0.2654759883880615, 'CPU': 0.1799999999999926, 'gp':-285.988059619120}
+
+{'status': 'Optimal', 'min': -285.98744579692226, 'Wall':1.1604969501495361, 
+'Message': 'Feasible solution for moments of order 3', 
+'CPU': 0.8499999999999943, 'Size': [20, 84]}
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{thebibliography}{20}
+	\bibitem{lbgpLasserre} M. Ghasemi, J. B. Lasserre and M. Marshall, \emph{Lower bounds on the global minimum of a polynomial}, to appear.
+	\bibitem{lbgp} M. Ghasemi and M. Marshall, \emph{Lower bounds for polynomials using geometric programming}, SIAM J. Optim. 22(2) (460-473), 
+	2012.
+	\bibitem{genlbgp} M. Ghasemi and M. Marshall, \emph{Lower Bounds for a Polynomial on a basic closed semialgebraic set using geometric 
+	programming}, in progress.
+	\bibitem{gloptipoly} D. Henrion and J. B. Lasserre, \emph{Gloptipoly: global optimization over polynomials with
+	matlab and sedumi}, ACM Transactions on Mathematical Software, 29(2):165–195, 2003.
+	\bibitem{LasserreSDP} J. B. Lasserre, \emph{Global optimization with polynomials and the problem of moments}, SIAM J. Opt. 11(3)(796–817), 2001.
+	\bibitem{LasserreMPP} J. B. Lasserre, \emph{Moments, Positive Polynomials and Their Applications}, Imperial College Press Optimization Series 
+	Vol. 1, 2010.
+	\bibitem{Laurent} M. Laurent, \emph{Sums of squares, moment matrices and optimization over polynomials}, 2010.
+	\bibitem{sostools} S. Prajna, A. Papachristodoulou, P. Seiler, and P. A. Parrilo, \emph{SOSTOOLS: Sum of squares optimization toolbox for 
+	MATLAB}, 2004
+\end{thebibliography}
+\end{document}
