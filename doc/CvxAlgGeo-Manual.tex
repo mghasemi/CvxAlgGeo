@@ -43,7 +43,7 @@
 \newcommand{\sos}{\sum\mathbb{R}[\underline{X}]^2}
 \newcommand{\rfps}{\fps{\mathbb{R}}{\underline{X}}}
 \newcommand{\sage}{\href{http://www.sagemath.org}{\textsc{Sage}}}
-\newcommand{\cvxalggeo}{\href{https://docs.google.com/open?id=0B16xZ-lflLrZZGMwN2I1MGItNzk5Mi00OGIxLTljZjgtYTgxMmUyMTZiZGU4}{\textsc{CvxAlgGeo}}}
+\newcommand{\cvxalggeo}{\href{https://github.com/mghasemi/CvxAlgGeo}{\textsc{CvxAlgGeo}}}
 
 %%% Special Symbols %%%
 \newcommand{\tvs}{\mathcal{TVS}}
@@ -120,7 +120,7 @@ Saskatoon, SK. S7N 5E6, Canada}
 \cvxalggeo~ is a package written for \sage~ and published under GNU(GPL) to implement a fast method to compute a lower bound for multivariate 
 polynomials over a basic closed semialgebraic set. It is mainly based on methods introduced in \cite{lbgp}, \cite{lbgpLasserre} and \cite{genlbgp}. 
 Moreover, to provide computational tools for usual calculation based on semidefinite programming \cvxalggeo~ implements some functionalities 
-available on \textsc{SosTools} and \textsc{GlOptiPoly} for \textsc{Matlab} \cite{gloptipoly, sostools}.
+available on \textsc{SosTools} and \textsc{GloptiPoly} for \textsc{Matlab} \cite{gloptipoly, sostools}.
 
 At this stage, \cvxalggeo~ contains implementations of two different methods for polynomial optimization:
 
@@ -132,7 +132,7 @@ Denote $f_{\alpha}$ where $\alpha=2d(\delta_{1i},\dots,\delta_{ni})$ by $f_{2d,i
 Degree of a polynomial $f$ ($\deg f$) is the maximum degree of its monomials.
 We also denote the set of those exponents $\alpha$ for which the monomial $f_{\alpha}\ux^{\alpha}$ is not a square by $\Delta_f$, i.e.,
 \[
-	\Delta_f:=\{\alpha\in\naturals^n ~:~ f_{\alpha}<0\textrm{ or }\alpha_i\textrm{ is odd for some }1\leq i\leq n\}.
+    \Delta_f:=\{\alpha\in\naturals^n ~:~ f_{\alpha}<0\textrm{ or }\alpha_i\textrm{ is odd for some }1\leq i\leq n\}.
 \]
 Let $\textbf{g}=(g_1,\dots,g_m)$ be a tuple of polynomials and $K_{\textbf{g}}=\{x\in\reals^n : g_j(x)\ge 0, j=1,\dots,m\}$. Denote the infimum 
 of $f$ over $K_{\textbf{g}}$ by $f_{*,\textbf{g}}$, $\Delta=\Delta_f\cup\Delta_{-g_1}\cup\dots\cup\Delta_{-g_m}$ and $A=(a_{kl})$ be a 
@@ -176,16 +176,17 @@ given on \cite[Chapter 4 and 5]{LasserreMPP} and \cite{Laurent}.
 \section{\cvxalggeo}
 
 \cvxalggeo~ implements few tools for computations over real polynomial rings in Python for \sage~ using 
-\href{http://abel.ee.ucla.edu/cvxopt/}{\textsc{CvxOpt}}.
-The current version consists of two main classes.
+\href{http://abel.ee.ucla.edu/cvxopt/}{\textsc{CvxOpt}} and \href{https://projects.coin-or.org/Csdp/}{CSDP}.
+The current version consists of three main modules.
 \begin{enumerate}
-	\item{\texttt{GlOptGeoPrg}}
-	\item{\texttt{SosTools}}
+	\item{\texttt{geometric}}
+	\item{\texttt{semidefinite}}
+    \item{\texttt{invariant}}
 \end{enumerate}
 In this section we describe how to use these programs.
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{GlOptGeoPrg(Prog, Rng [, H=A, Settings])}~
+\subsection{geometric.GPTools(Prog, Rng [, H=A, Settings])}~
 
 \noindent\textbf{Initialization:}
 This class implements \eqref{GP}, requires two mandatory arguments, \texttt{Prog}, \texttt{Rng} and two optional arguments \texttt{H} and 
@@ -205,27 +206,27 @@ This class implements \eqref{GP}, requires two mandatory arguments, \texttt{Prog
 		\item{`\texttt{Details}' is by default set to \texttt{False}. Set \texttt{True} to see the detail output of the \textsc{CvxOpt} solver.}
 		\item{`\texttt{tryKKT}' is by default $20$ that forces the solver to continue for the given number of steps, even if a singular KKT matrix 
 		occurred.}
-		\item{`\texttt{AutoMatrix}' accepts a boolean `\texttt{True}' or `\texttt{False}'. The value \texttt{True} leaves the choice of $A$ to 
+		\item{`\texttt{AutoMatrix}' accepts a Boolean `\texttt{True}' or `\texttt{False}'. The value \texttt{True} leaves the choice of $A$ to 
 		the program automatically.}
 	\end{itemize}
 	}
 \end{itemize}
 
 \noindent\textbf{Running:}
-The method \texttt{GlOptGeoPrg.minimize()} solves \eqref{GP} for \texttt{f} and \texttt{g1,...,gm}. 
-The attribute \texttt{GlOptGeoPrg.fgp} also contains the output of \texttt{minimize}.
+The method \texttt{GPTools.minimize()} solves \eqref{GP} for \texttt{f} and \texttt{g1,...,gm}. 
+The attribute \texttt{GPTools.fgp} also contains the output of \texttt{minimize}.
 
 \noindent\textbf{Output:}
-The attribute \texttt{GlOptGeoPrg.Info} is a dictionary which gives detailed information on the results of the method \texttt{minimize}.
+The attribute \texttt{GPTools.Info} is a dictionary which gives detailed information on the results of the method \texttt{minimize}.
 \begin{itemize}
 	\item{`\texttt{gp}' is the lower bound obtained from \eqref{GP}.}
 	\item{`\texttt{Wall}' contains the wall time consumed by the solver.}
 	\item{`\texttt{CPU}' contains the CPU time consumed by the solver.}
-	\item{`\texttt{status}' and `\texttt{Message}' give some informations about the running process.}
+	\item{`\texttt{status}' and `\texttt{Message}' give some information about the running process.}
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{SosTools(Prg, Rng [, Settings])}~
+\subsection{semidefinite.SosTools(Prg, Rng [, Settings])}~
 
 This class is on its early stage and aims to provides the same functionality as \textsc{SosTools} does for \textsc{Matlab}.
 
@@ -239,9 +240,10 @@ This class implements the semidefinite program \eqref{CSOS}.
 	\end{itemize}
 	They must be elements of the polynomial ring \texttt{Rng}, `\texttt{PolynomialRing(F,'x',n)}' where \texttt{n} is 
 	the number of variables and `\texttt{F}' is the base field.}
-	\item{\texttt{Settings} is exactly similar to \texttt{GlOptGeoPrg} with an extra index `\texttt{Order}' which corresponds to the index $k$ for $\textrm{Prg}_k$
+	\item{\texttt{Settings} is exactly similar to \texttt{GPTools} with two extra indices `\texttt{'Solver'}' and `\texttt{Order}' which corresponds to the index $k$ for $\textrm{Prg}_k$
 	in \eqref{CSOS}.
-	The default value for \texttt{Order} is set to be 0 which results in the minimum size for moment matrices.}
+	The default value for \texttt{Order} is set to be 0 which results in the minimum size for moment matrices.
+    `\texttt{'Solver'}' assigns the sdp solver subject to the availability. Currently could be either `\texttt{cvxopt}' or `\texttt{csdp}'.}
 \end{itemize}
 
 \noindent\textbf{Running:}
@@ -252,13 +254,13 @@ This class implements the semidefinite program \eqref{CSOS}.
 \end{itemize}
 
 \noindent\textbf{Output:}
-The attribute \texttt{SosTools.Info} returns the similar information as for \texttt{GlOptGeoPrg.Info}. But instead of `\texttt{gp}' it has the key `\texttt{min}'
+The attribute \texttt{SosTools.Info} returns the similar information as for \texttt{GPTools.Info}. But instead of `\texttt{gp}' it has the key `\texttt{min}'
 for $\rsos{f}$. The Info key `\texttt{is sos}' is by default \texttt{False}, but after executing `\texttt{decompose}' it may become \texttt{True}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Example}
 \begin{verbatim}
-
+from CvxAlgGeo import *
 ## Initial settings ##
 n = 3			# Number of variables
 d = 4			# Maximum degree of polynomials
@@ -269,25 +271,25 @@ X = R.gens();
 
 ##########################################
 
-Prg=[]
-Cns=[]
-f=R.random_element(d,randint(1,num_monos))+sum(p^d for p in X)
+Prg = []
+Cns = []
+f = R.random_element(d, randint(1, num_monos)) + sum(p^d for p in X)
 Prg.append(f)
 for i in range(m):
-    g=R.random_element(d,num_monos)
-    Cns.append(g);
+    g = R.random_element(d, num_monos)
+    Cns.append(g)
 Prg.append(Cns)
 
-conf={'Details':False,'tryKKT':20, 'AutoMatrix':False, 'Order':1}
-M=identity_matrix(QQ,m+1)
+conf = {'Details':False,'tryKKT':20, 'AutoMatrix':False, 'Order':1}
+M = identity_matrix(QQ, m+1)
 
 print Prg
 
-A=GlOptGeoPrg(Prg, R, H=M, Settings=conf)
+A = geometric.GPTools(Prg, R, H=M, Settings=conf)
 A.minimize()
 show(A.H)
 print A.Info
-B=SosTools(Prg, R, Settings=conf)
+B = semidefinite.SosTools(Prg, R, Settings=conf)
 B.init_sdp()
 B.minimize()
 print B.Info

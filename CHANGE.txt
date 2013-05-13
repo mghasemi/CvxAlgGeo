@@ -1,0 +1,23 @@
+CvxAlgGeo is a Sage package implementing some usual computations related
+to real algebraic geometry and optimization 
+
+AUTHORS:
+
+- Mehdi Ghasemi  <mehdi.ghasemi@gmail.com>
+- Murray Marshall <marshall@math.usask.ca>
+
+CHANGE LOG:
+
+- Mehdi Ghasemi (2011-11-10): initial version (Saskatoon)
+- Mehdi Ghasemi (2012-07-25): Support for Constraint Sos-approximation 
+  of a polynomial over a semialgebraic set. Also constraint version of 
+  GlOptGeoPrg over TV screen shaped semialgebraic sets(Saskatoon)
+- Mehdi Ghasemi (2012-11-10): Support computation in invariant case is 
+  added as a separate class, InvariantPolynomial (Konstanz)
+- Mehdi Ghasemi (2013-01-22): Optimization over an arbitrary basic semi-
+  algebraic set for GlOpGeoPrg (Saskatoon)
+- Mehdi Ghasemi (2013-02-20): Several bug fix (Toronto)
+- Mehdi Ghasemi (2013-04-02): SosTools redesigned to integrate with 
+  cpycsdp (Singapore)
+- Mehdi Ghasemi (2013-05-13): Converted into python package format for
+  installing through sage -sh (Singapore).
