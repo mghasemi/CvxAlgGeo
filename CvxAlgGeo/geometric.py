@@ -200,7 +200,7 @@ class GPTools:
                 if k == None:
                     k = 0
                 self.H[1, 0] = -(k)
-        if self.prg_size == 3:
+        elif self.prg_size == 3:
             crl55 = True
             k = None
             for j in range(self.number_of_variables):
@@ -219,7 +219,36 @@ class GPTools:
             if crl55:
                 if k == None:
                     k = 0
-                self.H[2, 1] = -(k)    
+                self.H[2, 1] = -(k)
+        elif self.prg_size >= 4:
+            thm42 = True
+            indices = []
+            for i in range(self.number_of_variables):
+                Neg = False
+                for j in range(self.prg_size):
+                    gji = self.Prog[j].coefficients()[self.Prog[j].monomials().index(diagonal_terms[i])]
+                    if j == 0:
+                        gji = -gji
+                    if (not Neg) and (gji < 0):
+                        Neg = True
+                        indices.append(j)
+                    elif Neg and (gij != 0):
+                        thm42 = False
+            if thm42:
+                for k in range(self.prg_size):
+                    for j in range(k+1, self.prg_size):
+                        cand = []
+                        for i in range(self.number_of_variables):
+                            gjdi = self.Prog[j].coefficients()[self.Prog[j].monomials().index(diagonal_terms[i])]
+                            if j == 0:
+                                gjdi = -gjdi
+                            if gjdi < 0:
+                                tmp = 0
+                                for jp in range(k+1, j):
+                                    gjpdi = self.Prog[jp].coefficients()[self.Prog[jp].monomials().index(diagonal_terms[i])]
+                                    tmp += self.H[jp, k]*gjpdi
+                                cand.appned(-(gjdi + tmp)/gjdi)
+                        self.H[j, k] = min(cand)
     
     def init_geometric_program(self):
 	"""
@@ -456,8 +485,8 @@ class GPTools:
         K = GP[2]
         start = time()
         start2 = clock()
-        if True:
-        #try:
+        #if True:
+        try:
             sol = solvers.gp(K=K, F=F, g=g)
             elapsed = (time() - start)
             elapsed2 = (clock()-start2)
@@ -473,9 +502,22 @@ class GPTools:
             else:
                 self.Info['status'] = 'Optimal'
                 self.Info['Message'] = 'Optimal solution found by solver.'
-        #except:
-        #    self.Info['Message'] = "An error has occurred on CvxOpt.GP solver."
-        #    self.Info['status'] = 'Infeasible'
-        #    self.Info['gp'] = None
-        #    self.fgp = None
-        #return self.fgp
+        except:
+            self.Info['Message'] = "An error has occurred on CvxOpt.GP solver."
+            self.Info['status'] = 'Infeasible'
+            self.Info['gp'] = None
+            self.fgp = None
+        return self.fgp
+
+########################################################################
+
+def hypercube_matrix(f,d,R):
+    
+    Vars=R.gens();
+    Ord=d
+    diagonal_terms=[p^Ord for p in Vars];
+    A=identity_matrix(RR, len(Vars)+1);
+    for i in range(len(Vars)):
+        if diagonal_terms[i] in f.monomials():
+            A[i+1,0]=-f.coefficients()[f.monomials().index(diagonal_terms[i])]
+    return A;
