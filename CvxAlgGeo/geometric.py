@@ -180,75 +180,79 @@ class GPTools:
         
         self.H = identity_matrix(self.Field, self.prg_size)
         diagonal_terms = [p**self.Ord for p in self.VARS]
-        if self.prg_size == 2:
-            crl53 = True
-            k = None
-            for j in range(self.number_of_variables):
-                fdi = 0
-                g1di = 0
-                if diagonal_terms[j] in self.Prog[1].monomials():
-                    g1di = self.Prog[1].coefficients()[self.Prog[1].monomials().index(diagonal_terms[j])]
-                if diagonal_terms[j] in self.Prog[0].monomials():
-                    fdi = self.Prog[0].coefficients()[self.Prog[0].monomials().index(diagonal_terms[j])]
-                if g1di != 0:
-                    if k == None:
-                        k = -fdi/g1di
-                    else:
-                        k = max(k, -fdi/g1di)
-                crl53 = crl53 and ((g1di != 0) or (fdi > 0))
-            if crl53:
-                if k == None:
-                    k = 0
-                self.H[1, 0] = -(k)
-        elif self.prg_size == 3:
-            crl55 = True
-            k = None
-            for j in range(self.number_of_variables):
-                g1di = 0
-                g2di = 0
-                if diagonal_terms[j] in self.Prog[2].monomials():
-                    g2di = self.Prog[2].coefficients()[self.Prog[2].monomials().index(diagonal_terms[j])]
-                if diagonal_terms[j] in self.Prog[1].monomials():
-                    g1di = self.Prog[1].coefficients()[self.Prog[1].monomials().index(diagonal_terms[j])]
-                if g2di != 0:
-                    if k == None:
-                        k = g1di/g2di
-                    else:
-                        k = max(k, g1di/g2di)
-            crl55 = crl55 and ((g2di != 0) or (g1di < 0))
-            if crl55:
-                if k == None:
-                    k = 0
-                self.H[2, 1] = -(k)
-        elif self.prg_size >= 4:
-            thm42 = True
-            indices = []
-            for i in range(self.number_of_variables):
-                Neg = False
-                for j in range(self.prg_size):
-                    gji = self.Prog[j].coefficients()[self.Prog[j].monomials().index(diagonal_terms[i])]
-                    if j == 0:
-                        gji = -gji
-                    if (not Neg) and (gji < 0):
-                        Neg = True
-                        indices.append(j)
-                    elif Neg and (gij != 0):
-                        thm42 = False
-            if thm42:
-                for k in range(self.prg_size):
-                    for j in range(k+1, self.prg_size):
-                        cand = []
-                        for i in range(self.number_of_variables):
+        
+        thm42 = True
+        rmk43 = True
+        
+        for i in range(self.number_of_variables):
+            nonzero = False
+            k = self.prg_size
+            while not nonzero:
+                k -= 1
+                if k < 0:
+                    break
+                gkdi = 0
+                if diagonal_terms[i] in self.Prog[k].monomials():
+                    gkdi = self.Prog[k].coefficients()[self.Prog[k].monomials().index(diagonal_terms[i])]
+                if gkdi != 0:
+                    nonzero = True
+            if gkdi > 0:
+                thm42 = False
+                rmk43 = False
+                break
+            for j in range(k):
+                gjdi = 0
+                if diagonal_terms[i] in self.Prog[j].monomials():
+                    gjdi = self.Prog[j].coefficients()[self.Prog[j].monomials().index(diagonal_terms[i])]
+                if gjdi < 0:
+                    rmk43 = False
+                    break
+        if rmk43:
+            for j in range(1, self.prg_size):
+                sums = [0]
+                for i in range(self.number_of_variables):
+                    g0di = 0
+                    if diagonal_terms[i] in self.Prog[0].monomials():
+                        g0di = -self.Prog[0].coefficients()[self.Prog[0].monomials().index(diagonal_terms[i])]
+                    tmp = g0di
+                    gjdi = 0
+                    if diagonal_terms[i] in self.Prog[j].monomials():
+                        gjdi = self.Prog[j].coefficients()[self.Prog[j].monomials().index(diagonal_terms[i])]
+                    if gjdi != 0:
+                        for jp in range(1, j):
+                            gjpdi = 0
+                            if diagonal_terms[i] in self.Prog[jp].monomials():
+                                gjpdi = self.Prog[jp].coefficients()[self.Prog[jp].monomials().index(diagonal_terms[i])]
+                            tmp += self.H[jp, 0]*gjpdi
+                        sums.append(tmp/gjdi)
+                self.H[j, 0] = -max(sums)
+            return
+        if thm42:
+            for j in range(self.prg_size):
+                for k in range(j):
+                    sums = [0]
+                    for i in range(self.number_of_variables):
+                        gjdi = 0
+                        if diagonal_terms[i] in self.Prog[j].monomials():
                             gjdi = self.Prog[j].coefficients()[self.Prog[j].monomials().index(diagonal_terms[i])]
-                            if j == 0:
-                                gjdi = -gjdi
-                            if gjdi < 0:
-                                tmp = 0
-                                for jp in range(k+1, j):
+                        rest_are_zero = True
+                        for jp in range(j+1, self.prg_size):
+                            gjpdi = 0
+                            if diagonal_terms[i] in self.Prog[jp].monomials():
+                                gjpdi = self.Prog[jp].coefficients()[self.Prog[jp].monomials().index(diagonal_terms[i])]
+                            if gjpdi != 0:
+                                rest_are_zero = False
+                        print 'j=', j,', k=', k,', i=', i, ', ', rest_are_zero
+                        if (gjdi < 0) and rest_are_zero:
+                            tmp = gjdi
+                            for jp in range(k+1, j):
+                                gjpdi = 0
+                                if diagonal_terms[i] in self.Prog[jp].monomials():
                                     gjpdi = self.Prog[jp].coefficients()[self.Prog[jp].monomials().index(diagonal_terms[i])]
-                                    tmp += self.H[jp, k]*gjpdi
-                                cand.appned(-(gjdi + tmp)/gjdi)
-                        self.H[j, k] = min(cand)
+                                tmp += self.H[jp, k]*gjpdi*coef
+                            sums.append(-tmp/gjdi)
+                        print sums
+                        self.H[j, k] = min(sums)
     
     def init_geometric_program(self):
 	"""
@@ -510,14 +514,3 @@ class GPTools:
         return self.fgp
 
 ########################################################################
-
-def hypercube_matrix(f,d,R):
-    
-    Vars=R.gens();
-    Ord=d
-    diagonal_terms=[p^Ord for p in Vars];
-    A=identity_matrix(RR, len(Vars)+1);
-    for i in range(len(Vars)):
-        if diagonal_terms[i] in f.monomials():
-            A[i+1,0]=-f.coefficients()[f.monomials().index(diagonal_terms[i])]
-    return A;
