@@ -131,9 +131,14 @@ class SosTools:
             self.Ord = 0
         ###
         if 'Solver' in Settings:
-	    self.solver = Settings['Solver']
-	else:
-	    self.solver = 'cvxopt'
+            self.solver = Settings['Solver']
+        else:
+            self.solver = 'cvxopt'
+        ###
+        if 'detail' in Settings:
+            self.detail = Settings['detail']
+        else:
+            self.detail = True
         ###
         if len(self.HalfDegs) > 0 :
             cns_half_deg_max = max(self.HalfDegs)
@@ -255,7 +260,7 @@ class SosTools:
         """
         from SDP import SDP
         
-        sos_sdp = SDP.sdp(solver = self.solver)
+        sos_sdp = SDP.sdp(solver = self.solver, Settings = {'detail':self.detail})
         sos_sdp.solve(self.Matrice[0], self.Matrice[1], self.Matrice[2])
         
         if sos_sdp.Info['Status'] == 'Optimal':
@@ -301,7 +306,7 @@ class SosTools:
             Blck[i].append(A)
         
         from SDP import SDP
-        sos_sdp = SDP.sdp(solver = self.solver)
+        sos_sdp = SDP.sdp(solver = self.solver, Settings = {'detail':self.detail})
         sos_sdp.solve(C, self.PolyCoefFullVec(), Blck)
         
         if sos_sdp.Info['Status'] == 'Optimal':

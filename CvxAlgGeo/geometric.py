@@ -30,7 +30,7 @@ class GPTools:
     Ord = 0
     Prog = []
     
-    def __init__(self, Prg, Rng, H = [], Settings = {'Iterations':150,'Details':True,'tryKKT':0, 'AutoMatrix':True, 'precision':7}):
+    def __init__(self, Prg, Rng, H = [], Settings = {'Iterations':150,'detail':True,'tryKKT':0, 'AutoMatrix':True, 'precision':7}):
         
         f = Prg[0]
         self.Prog = []
@@ -242,16 +242,14 @@ class GPTools:
                                 gjpdi = self.Prog[jp].coefficients()[self.Prog[jp].monomials().index(diagonal_terms[i])]
                             if gjpdi != 0:
                                 rest_are_zero = False
-                        print 'j=', j,', k=', k,', i=', i, ', ', rest_are_zero
                         if (gjdi < 0) and rest_are_zero:
                             tmp = gjdi
                             for jp in range(k+1, j):
                                 gjpdi = 0
                                 if diagonal_terms[i] in self.Prog[jp].monomials():
                                     gjpdi = self.Prog[jp].coefficients()[self.Prog[jp].monomials().index(diagonal_terms[i])]
-                                tmp += self.H[jp, k]*gjpdi*coef
+                                tmp += self.H[jp, k]*gjpdi
                             sums.append(-tmp/gjdi)
-                        print sums
                         self.H[j, k] = min(sums)
     
     def init_geometric_program(self):
@@ -465,7 +463,7 @@ class GPTools:
         else:
             solvers.options['maxiters'] = 100
         if 'Details' in self.Settings:
-            solvers.options['show_progress'] = self.Settings['Details']
+            solvers.options['show_progress'] = self.Settings['detail']
         else:
             solvers.options['show_progress'] = False
         if 'tryKKT' in self.Settings:
