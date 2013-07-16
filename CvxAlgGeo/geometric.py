@@ -367,7 +367,7 @@ class GPTools:
                 Ftr[num_z_alpha + i] = d
                 for j in range(self.number_of_variables):
                     if tmp_exp[j] != 0:
-                        Ftr[var_before + j] = -tmp_exp[j]
+                        Ftr[var_before + self.non_zero_before(tmp_exp, j)] = -tmp_exp[j]
                 Ft.append(Ftr)
                 Ftr=[0 for l in range(big_dim)]
                 Kt.append(1)
