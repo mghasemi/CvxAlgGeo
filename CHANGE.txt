@@ -21,3 +21,4 @@ CHANGE LOG:
   cpycsdp (Singapore)
 - Mehdi Ghasemi (2013-05-13): Converted into python package format for
   installing through sage -sh (Singapore).
+- Mehdi Ghasemi (2013-06-15): Resolve a bug due to convertion (Saskatoon)
