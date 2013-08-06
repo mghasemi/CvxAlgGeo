@@ -144,11 +144,26 @@ class SosTools:
             cns_half_deg_max = max(self.HalfDegs)
         else:
             cns_half_deg_max = 0
-        self.Relaxation = max(self.Relaxation,f_half_deg,cns_half_deg_max)+self.Ord;
+        self.Relaxation = max(self.Relaxation,f_half_deg,cns_half_deg_max)+self.Ord
         ###
         self.Monomials = self.MonomialsVec(2*self.Relaxation)
-        self.Info = {'min':0, 'CPU':0, 'Wall':0, 'status':'Unknown', 'Message':'', 'is sos':False};
-
+        self.Info = {'min':0, 'CPU':0, 'Wall':0, 'status':'Unknown', 'Message':'', 'is sos':False}
+        
+        from sage.interfaces.matlab import Matlab
+        try:
+            self.MATLAB = {'available':True, 'gloptipoly':False, 'sedumi':False, 'sdpnal':False}
+            a = Matlab()
+            path_str = a.get('path')
+            if path_str.find('gloptipoly') >= 0:
+                self.MATLAB['gloptipoly'] = True
+            if path_str.find('SeDuMi') >= 0:
+                self.MATLAB['sedumi'] = True
+            if path_str.find('SDPNAL') >= 0:
+                self.MATLAB['sdpnal'] = True
+            a.eval('quit;')
+        except:
+            self.MATLAB = {'available':False, 'gloptipoly':False, 'sedumi':False, 'sdpnal':False}
+    
         
     def NumMonomials(self, n, d):
         """
@@ -386,3 +401,67 @@ class SosTools:
         self.Constraints = TempConstraints
         self.HalfDegs = TempHalfDegs
         self.NumberOfConstraints = TempNumberOfConstraints
+        
+    def GloptiPolyStr(self, p):
+        """
+            This method takes a polynomial p and generates a string
+            which is the equivalent of p in ''MATLAB -- GloptiPoly''.
+        """
+        cf = p.coefficients()
+        mn = p.monomials()
+        N = len(mn)
+        st = ""
+        for i in range(N):
+            xp = mn[i].exponents()[0]
+            if i > 0:
+                st = st + " + ("+str(cf[i])+")"
+            else:
+                st = st + "("+str(cf[i])+")"
+            for j in range(self.NumVars):
+                if xp[j] != 0:
+                    if xp[j] > 1:
+                        st = st + "*x("+str(j+1)+")^"+str(xp[j])
+                    else:
+                        st = st + "*x("+str(j+1)+")"
+        return st
+    
+    def CallMatlab(self, solver = 'sedumi'):
+        """
+        """
+        from sage.interfaces.matlab import Matlab
+        a = Matlab()
+        code_line = "mpol x " + str(self.NumVars)
+        a.eval(code_line)
+        code_line = "f = " + self.GloptiPolyStr(self.MainPolynomial) + ";"
+        a.eval(code_line)
+        code_line = "K = ["
+        for idx in range(self.NumberOfConstraints - 1):
+            if (idx < self.NumberOfConstraints - 1) and (self.Constraints[idx] != 1.0):
+                if code_line != "K = [":
+                    code_line += ", " 
+                code_line += self.GloptiPolyStr(self.Constraints[idx]) + ">= 0"
+        code_line += "];"
+        a.eval(code_line)
+        code_line = "P = msdp(min(f), K);"
+        a.eval(code_line)
+        if solver.lower() == 'sdpnal':
+            code_line = "[A,b,c,K] = msedumi(P);"
+            a.eval(code_line)
+            code_line = "opts = []; opts.tol = 1e-7;"
+            a.eval(code_line)
+            code_line = "[blk,At,C,B] = read_sedumi(A,b,c,K);"
+            a.eval(code_line)
+            code_line = "[obj,X,y,Z,info,runhist] = sdpnal(blk,At,C,B,opts);"
+            a.eval(code_line)
+            code_line = "res = -(obj(1)+obj(2))/2;"
+            a.eval(code_line)
+            RES = [eval(a.get("res"))]
+            code_line = "cputime = runhist.cputime(size(runhist.cputime,2));"
+            a.eval(code_line)
+            RES.append(eval(a.get('cputime')))
+        else:
+            code_line = "[status,obj] = msol(P)"
+            a.eval(code_line)
+            RES = [a.get("obj")]
+        a.eval("quit;")
+        return RES
