@@ -12,8 +12,8 @@ CHANGE LOG:
 - Mehdi Ghasemi (2012-07-25): Support for Constraint Sos-approximation 
   of a polynomial over a semialgebraic set. Also constraint version of 
   GlOptGeoPrg over TV screen shaped semialgebraic sets(Saskatoon)
-- Mehdi Ghasemi (2012-11-10): Support computation in invariant case is 
-  added as a separate class, InvariantPolynomial (Konstanz)
+- Mehdi Ghasemi (2012-11-10): Computation in invariant case is added as 
+  a separate class, InvariantPolynomial (Konstanz)
 - Mehdi Ghasemi (2013-01-22): Optimization over an arbitrary basic semi-
   algebraic set for GlOpGeoPrg (Saskatoon)
 - Mehdi Ghasemi (2013-02-20): Several bug fix (Toronto)
