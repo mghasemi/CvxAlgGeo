@@ -91,11 +91,12 @@ class GPTools:
     def UDelta(self):
         """
         This method returns a list consists of 0:coefficients, 1: monomials, 
-        2: total degree of monomials, 3: number of non-zero exponents
+        2: total degree of monomials, 3: number of non-zero exponents, 
+        4: coefficients of diagonal monomials 
         for those terms that are not square in the program.
         """
         
-        Dlt = [[], [], [], []]    #Dlt[0]:Coefs     Dlt[1]:Monos     Dlt[2]:Degree     Delt[3]:n_alpha
+        Dlt = [[], [], [], [], []]    #Dlt[0]:Coefs     Dlt[1]:Monos     Dlt[2]:Degree     Delt[3]:n_alpha    Delt[4]:Diagonal monos coefs
         idx = 0
         diagonal_monos = [p**self.Ord for p in self.VARS]
         diagonal_monos.append(1)
@@ -113,6 +114,8 @@ class GPTools:
                     Dlt[1].append(monos[i])
                     Dlt[2].append(monos[i].total_degree())
                     Dlt[3].append(self.n_alpha(monos[i].exponents()[0]))
+                elif (monos[i] in diagonal_monos):
+                    Dlt[4].append(coefs[i])
             idx += 1
         self.UDlt = Dlt
     
