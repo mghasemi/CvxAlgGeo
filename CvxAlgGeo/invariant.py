@@ -25,12 +25,12 @@ class InvariantPolynomial:
     Poly_max = 0
     
     
-    def __init__(self, Prg, Settings = {}):
+    def __init__(self, Prg, Rng, Settings = {}):
         
         self.MainPolynomial = Prg[0]
-        self.NumVars = len(self.MainPolynomial.variables())
-        self.Ring = PolynomialRing(QQ, 'x', self.NumVars)
+        self.Ring = Rng
         self.vars = self.Ring.gens()
+        self.NumVars = len(self.vars)
         ###
         f_tot_deg = self.MainPolynomial.total_degree()
         if len(Prg) > 1:
