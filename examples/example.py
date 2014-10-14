@@ -13,7 +13,7 @@ X = R.gens();
 Prg = []
 Cns = []
 
-f = R.random_element(d, randint(1, num_monos)) + sum(p^d for p in X)
+f = R.random_element(d, randint(1, num_monos)) + sum(p**d for p in X)
 Prg.append(f)
 
 for i in range(m):
